@@ -42,8 +42,12 @@ when the upstream digest changes.
 ```shell
 docker pull kubernetesloong64/debian-loong64:13
 docker pull kubernetesloong64/debian-loong64:13-slim
+docker pull kubernetesloong64/debian-loong64:trixie
+docker pull kubernetesloong64/debian-loong64:trixie-slim
 docker pull kubernetesloong64/debian-loong64:14
 docker pull kubernetesloong64/debian-loong64:14-slim
+docker pull kubernetesloong64/debian-loong64:forky
+docker pull kubernetesloong64/debian-loong64:forky-slim
 ```
 
 ## Source
