@@ -32,7 +32,7 @@ jobs:
         with:
           username: ${{ vars.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-      - name: Sync debian image from lcr.loongnix.cn
+      - name: Sync debian image from lcr.loongnix.cn/debian:${{ matrix.tag }}
         if: github.event_name != 'pull_request'
         run: |
           SRC_IMAGE="lcr.loongnix.cn/debian:${{ matrix.tag }}"
