@@ -1,0 +1,70 @@
+name: build
+on:
+  schedule:
+    - cron: '0 0 * * *'
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/build.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/build.yml
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      NAMESPACE: ${{ vars.NAMESPACE || 'kubernetesloong64' }}
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        tag: [ '13', '13-slim', 'trixie', 'trixie-slim', '14', '14-slim', 'forky', 'forky-slim' ]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Login to Docker Hub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@9780b0c442fbb1117ed29e0efdff1e18412f7567 # v3.4.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Sync debian image from lcr.loongnix.cn
+        if: github.event_name != 'pull_request'
+        run: |
+          SRC_IMAGE="lcr.loongnix.cn/debian:${{ matrix.tag }}"
+          DST_IMAGE="${{ env.NAMESPACE }}/debian-loong64:${{ matrix.tag }}"
+
+          echo "Pulling source image: ${SRC_IMAGE}"
+          docker pull "${SRC_IMAGE}"
+          SRC_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "${SRC_IMAGE}" | cut -d'@' -f2)
+          echo "Source digest: ${SRC_DIGEST}"
+
+          # Try to pull destination image to compare digests
+          DST_DIGEST=""
+          if docker pull "${DST_IMAGE}" 2>/dev/null; then
+            DST_DIGEST=$(docker inspect --format='{{index .RepoDigests 0}}' "${DST_IMAGE}" | cut -d'@' -f2)
+            echo "Destination digest: ${DST_DIGEST}"
+          else
+            echo "Destination image does not exist yet, will push."
+          fi
+
+          if [ "${SRC_DIGEST}" != "${DST_DIGEST}" ]; then
+            echo "Images differ, syncing..."
+
+            docker tag "${SRC_IMAGE}" "${DST_IMAGE}"
+            docker push "${DST_IMAGE}"
+            echo "Pushed: ${DST_IMAGE}"
+
+            # Push with date tag (年月日 = YYYYMMDD)
+            DATE_TAG="${{ matrix.tag }}-$(date +%Y%m%d)"
+            DST_DATE_IMAGE="${{ env.NAMESPACE }}/debian-loong64:${DATE_TAG}"
+            docker tag "${SRC_IMAGE}" "${DST_DATE_IMAGE}"
+            docker push "${DST_DATE_IMAGE}"
+            echo "Pushed: ${DST_DATE_IMAGE}"
+          else
+            echo "Images are identical, skipping sync."
+          fi
