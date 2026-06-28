@@ -18,7 +18,14 @@ a date-stamped tag (`<tag>-YYYYMMDD`) is published alongside the regular tag.
 Images are published to Docker Hub under
 [`kubernetesloong64/debian-loong64`](https://hub.docker.com/r/kubernetesloong64/debian-loong64).
 
-[![kubernetesloong64/debian-loong64](https://img.shields.io/docker/v/kubernetesloong64/debian-loong64?arch=loong64&logo=docker&label=kubernetesloong64%2Fdebian-loong64&sort=semver)](https://hub.docker.com/r/kubernetesloong64/debian-loong64/tags)
+- [![kubernetesloong64/debian-loong64:13](https://img.shields.io/badge/kubernetesloong64%2Fdebian--loong64-13-blue?labelColor=gray&logo=docker)](https://hub.docker.com/r/kubernetesloong64/debian-loong64/tags?name=13)
+- [![kubernetesloong64/debian-loong64:13-slim](https://img.shields.io/badge/kubernetesloong64%2Fdebian--loong64-13--slim-blue?labelColor=gray&logo=docker)](https://hub.docker.com/r/kubernetesloong64/debian-loong64/tags?name=13-slim)
+- [![kubernetesloong64/debian-loong64:trixie](https://img.shields.io/badge/kubernetesloong64%2Fdebian--loong64-trixie-blue?labelColor=gray&logo=docker)](https://hub.docker.com/r/kubernetesloong64/debian-loong64/tags?name=trixie)
+- [![kubernetesloong64/debian-loong64:trixie-slim](https://img.shields.io/badge/kubernetesloong64%2Fdebian--loong64-trixie--slim-blue?labelColor=gray&logo=docker)](https://hub.docker.com/r/kubernetesloong64/debian-loong64/tags?name=trixie-slim)
+- [![kubernetesloong64/debian-loong64:14](https://img.shields.io/badge/kubernetesloong64%2Fdebian--loong64-14-blue?labelColor=gray&logo=docker)](https://hub.docker.com/r/kubernetesloong64/debian-loong64/tags?name=14)
+- [![kubernetesloong64/debian-loong64:14-slim](https://img.shields.io/badge/kubernetesloong64%2Fdebian--loong64-14--slim-blue?labelColor=gray&logo=docker)](https://hub.docker.com/r/kubernetesloong64/debian-loong64/tags?name=14-slim)
+- [![kubernetesloong64/debian-loong64:forky](https://img.shields.io/badge/kubernetesloong64%2Fdebian--loong64-forky-blue?labelColor=gray&logo=docker)](https://hub.docker.com/r/kubernetesloong64/debian-loong64/tags?name=forky)
+- [![kubernetesloong64/debian-loong64:forky-slim](https://img.shields.io/badge/kubernetesloong64%2Fdebian--loong64-forky--slim-blue?labelColor=gray&logo=docker)](https://hub.docker.com/r/kubernetesloong64/debian-loong64/tags?name=forky-slim)
 
 ### Available tags
 
