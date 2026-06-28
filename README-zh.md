@@ -57,7 +57,7 @@ docker pull kubernetesloong64/debian-loong64:forky-slim
 
 ## 源
 
-- [lcr.loongnix.cn/debian](https://lcr.loongnix.cn/debian) — LoongArch64 上游 Debian 镜像
+- [lcr.loongnix.cn/debian](https://lcr.loongnix.cn/repository/library/debian?tab=tags) — LoongArch64 上游 Debian 镜像
 
 ## 许可证
 
