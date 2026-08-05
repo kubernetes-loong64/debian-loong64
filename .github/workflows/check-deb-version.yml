@@ -1,0 +1,39 @@
+name: check-deb-version
+
+on:
+  schedule:
+    - cron: '17 18 * * *'  # 每天北京时间凌晨 2:17 (UTC+8), UTC 18:17
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/check-deb-version.yml
+  pull_request:
+    branches:
+      - main
+    paths:
+      - .github/workflows/check-deb-version.yml
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        deb:
+          - name: linux-image
+            version: 7.0.13
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@06116385d9baf250c9f4dcb4858b16962ea869c3 # v4.1.0
+      - name: Pull Debian image
+        run: docker pull --platform linux/loong64 lcr.loongnix.cn/debian:14
+      - name: Get available ${{ matrix.deb.name }} versions
+        id: get-versions
+        run: |
+          VERSIONS=$(docker run --rm --platform linux/loong64 lcr.loongnix.cn/debian:14 \
+            bash -c "apt-get update -qq && apt-cache search ${{ matrix.deb.name }} | grep '^${{ matrix.deb.name }}' | grep -v 'debug' | grep -v '${{ matrix.deb.name }}-loong64' | awk '{print \$4}'")
+          echo "Found versions: $VERSIONS"
+          echo "versions=$(echo "$VERSIONS" | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
