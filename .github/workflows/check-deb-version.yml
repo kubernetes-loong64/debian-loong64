@@ -53,37 +53,10 @@ jobs:
 
       - name: Notify WeChat Work if new version available
         if: steps.get-versions.outputs.has_newer == 'true'
-        env:
-          WEBHOOK_URL: ${{ secrets.WECHAT_WEBHOOK_URL }}
-          DEB_NAME: ${{ matrix.deb.name }}
-          EXPECTED_VERSION: ${{ matrix.deb.version }}
-          NEWER_VERSIONS: ${{ steps.get-versions.outputs.newer_versions }}
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          import json
-          import os
-          import textwrap
-          import urllib.request
-
-          content = textwrap.dedent(f"""\
-          ## Debian 包版本更新通知
-
-          > **包名**: <font color="comment">{os.environ["DEB_NAME"]}</font>
-          > **预期版本**: <font color="comment">{os.environ["EXPECTED_VERSION"]}</font>
-          > **新版本**: <font color="warning">{os.environ["NEWER_VERSIONS"].strip()}</font>
-
-          请及时更新 [GitHub Actions]({os.environ["RUN_URL"]})""")
-
-          payload = json.dumps({
-              "msgtype": "markdown",
-              "markdown": {"content": content}
-          }).encode()
-
-          req = urllib.request.Request(
-              os.environ["WEBHOOK_URL"],
-              data=payload,
-              headers={"Content-Type": "application/json"}
-          )
-          urllib.request.urlopen(req)
-
-          print("WeChat Work notification sent.")
+          python .github/scripts/notify-wechat.py \
+            --webhook-url "${{ secrets.WECHAT_WEBHOOK_URL }}" \
+            --deb-name "${{ matrix.deb.name }}" \
+            --expected-version "${{ matrix.deb.version }}" \
+            --newer-versions "${{ steps.get-versions.outputs.newer_versions }}" \
+            --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
