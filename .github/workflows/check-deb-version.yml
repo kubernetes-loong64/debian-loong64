@@ -38,21 +38,18 @@ jobs:
           echo "Found versions: $VERSIONS"
           echo "versions=$(echo "$VERSIONS" | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
 
-          # Get the candidate version of the package for comparison
-          CANDIDATE_VERSION=$(docker run --rm --platform linux/loong64 lcr.loongnix.cn/debian:14 \
-            bash -c "rm -rf /etc/apt/sources.list.d/debian.sources && echo '' > /etc/apt/sources.list && echo 'deb http://deb.debian.org/debian/ forky main' >> /etc/apt/sources.list && apt-get update -qq && apt-cache policy ${{ matrix.deb.name }} 2>/dev/null | grep 'Candidate:' | awk '{print \$2}'")
-          echo "Candidate version: $CANDIDATE_VERSION"
-
+          # Compare each version against the expected version
           EXPECTED="${{ matrix.deb.version }}"
           HAS_NEWER="false"
-          if [ -n "$CANDIDATE_VERSION" ]; then
-            # Use dpkg to compare Debian package versions
-            if dpkg --compare-versions "$CANDIDATE_VERSION" gt "$EXPECTED"; then
+          NEWER_VERSIONS=""
+          for v in $VERSIONS; do
+            if dpkg --compare-versions "$v" gt "$EXPECTED"; then
               HAS_NEWER="true"
+              NEWER_VERSIONS="$NEWER_VERSIONS $v"
             fi
-          fi
+          done
           echo "has_newer=$HAS_NEWER" >> "$GITHUB_OUTPUT"
-          echo "candidate_version=$CANDIDATE_VERSION" >> "$GITHUB_OUTPUT"
+          echo "newer_versions=$(echo "$NEWER_VERSIONS" | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
 
       - name: Notify WeChat Work if new version available
         if: steps.get-versions.outputs.has_newer == 'true'
@@ -60,7 +57,7 @@ jobs:
           MESSAGE="## Debian 包版本更新通知\n\n"
           MESSAGE+="> **包名**: <font color=\"comment\">${{ matrix.deb.name }}</font>\n"
           MESSAGE+="> **预期版本**: <font color=\"comment\">${{ matrix.deb.version }}</font>\n"
-          MESSAGE+="> **新版本**: <font color=\"warning\">${{ steps.get-versions.outputs.candidate_version }}</font>\n\n"
+          MESSAGE+="> **新版本**: <font color=\"warning\">${{ steps.get-versions.outputs.newer_versions }}</font>\n\n"
           MESSAGE+="请及时更新 [GitHub Actions](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
 
           curl -s -X POST "${{ secrets.WECHAT_WEBHOOK_URL }}" \
