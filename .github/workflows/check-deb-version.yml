@@ -34,6 +34,6 @@ jobs:
         id: get-versions
         run: |
           VERSIONS=$(docker run --rm --platform linux/loong64 lcr.loongnix.cn/debian:14 \
-            bash -c "apt-get update -qq && apt-cache search ${{ matrix.deb.name }} | grep '^${{ matrix.deb.name }}' | grep -v 'debug' | grep -v '${{ matrix.deb.name }}-loong64' | awk '{print \$4}'")
+            bash -c "rm -rf /etc/apt/sources.list.d/debian.sources && echo '' > /etc/apt/sources.list && echo 'deb http://deb.debian.org/debian/ forky main' >> /etc/apt/sources.list && apt-get update -qq && apt-cache search ${{ matrix.deb.name }} | grep '^${{ matrix.deb.name }}' | grep -v 'debug' | grep -v '${{ matrix.deb.name }}-loong64' | awk '{print \$4}'")
           echo "Found versions: $VERSIONS"
           echo "versions=$(echo "$VERSIONS" | tr '\n' ' ')" >> "$GITHUB_OUTPUT"
