@@ -53,17 +53,37 @@ jobs:
 
       - name: Notify WeChat Work if new version available
         if: steps.get-versions.outputs.has_newer == 'true'
+        env:
+          WEBHOOK_URL: ${{ secrets.WECHAT_WEBHOOK_URL }}
+          DEB_NAME: ${{ matrix.deb.name }}
+          EXPECTED_VERSION: ${{ matrix.deb.version }}
+          NEWER_VERSIONS: ${{ steps.get-versions.outputs.newer_versions }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
-          MESSAGE="## Debian 包版本更新通知\n\n"
-          MESSAGE+="> **包名**: <font color=\"comment\">${{ matrix.deb.name }}</font>\n"
-          MESSAGE+="> **预期版本**: <font color=\"comment\">${{ matrix.deb.version }}</font>\n"
-          MESSAGE+="> **新版本**: <font color=\"warning\">${{ steps.get-versions.outputs.newer_versions }}</font>\n\n"
-          MESSAGE+="请及时更新 [GitHub Actions](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+          import json
+          import os
+          import textwrap
+          import urllib.request
 
-          curl -s -X POST "${{ secrets.WECHAT_WEBHOOK_URL }}" \
-            -H "Content-Type: application/json" \
-            -d "$(jq -n \
-              --arg content "$MESSAGE" \
-              '{msgtype: "markdown", markdown: {content: $content}}')"
+          content = textwrap.dedent(f"""\
+          ## Debian 包版本更新通知
 
-          echo "WeChat Work notification sent."
+          > **包名**: <font color="comment">{os.environ["DEB_NAME"]}</font>
+          > **预期版本**: <font color="comment">{os.environ["EXPECTED_VERSION"]}</font>
+          > **新版本**: <font color="warning">{os.environ["NEWER_VERSIONS"].strip()}</font>
+
+          请及时更新 [GitHub Actions]({os.environ["RUN_URL"]})""")
+
+          payload = json.dumps({
+              "msgtype": "markdown",
+              "markdown": {"content": content}
+          }).encode()
+
+          req = urllib.request.Request(
+              os.environ["WEBHOOK_URL"],
+              data=payload,
+              headers={"Content-Type": "application/json"}
+          )
+          urllib.request.urlopen(req)
+
+          print("WeChat Work notification sent.")
