@@ -30,6 +30,8 @@ jobs:
         uses: docker/setup-qemu-action@06116385d9baf250c9f4dcb4858b16962ea869c3 # v4.1.0
       - name: Pull Debian image
         run: docker pull --platform linux/loong64 lcr.loongnix.cn/debian:14
+      - name: Debug debian.sources
+        run: docker run --rm --platform linux/loong64 lcr.loongnix.cn/debian:14 cat /etc/apt/sources.list.d/debian.sources
       - name: Get available ${{ matrix.deb.name }} versions
         id: get-versions
         run: |
