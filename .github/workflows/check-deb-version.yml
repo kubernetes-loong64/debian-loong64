@@ -22,7 +22,7 @@ jobs:
       matrix:
         deb:
           - name: linux-image
-            version: 7.1.6
+            version: 7.1.7
     steps:
       - name: Checkout
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
